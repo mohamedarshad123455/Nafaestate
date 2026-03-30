@@ -8,7 +8,30 @@
         :root { --gold: #c5a059; --dark: #1a1a1a; --gray: #f8f9fa; }
         body { font-family: 'Georgia', serif; margin: 0; background-color: var(--gray); color: var(--dark); }
         
-        .header { text-align: center; padding: 80px 20px; background: var(--dark); color: white; }
+        /* Fixed Admin Button in Top Right */
+        .admin-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            text-decoration: none;
+            font-family: sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: 0.3s;
+            z-index: 100;
+        }
+        .admin-link:hover {
+            background: var(--gold);
+            color: white;
+        }
+
+        .header { text-align: center; padding: 100px 20px 80px; background: var(--dark); color: white; position: relative; }
         .header h1 { font-size: 3rem; letter-spacing: 4px; margin: 0; text-transform: uppercase; }
         .header p { color: var(--gold); font-family: sans-serif; letter-spacing: 2px; margin-bottom: 10px; font-size: 0.8rem; }
 
@@ -30,6 +53,8 @@
 <body>
 
     <div class="header">
+        <a href="admin.html" class="admin-link">Admin Login</a>
+        
         <p>EXPERTISE IN DUBAI REAL ESTATE</p>
         <h1>NAFA BLOGS</h1>
     </div>
