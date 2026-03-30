@@ -3,40 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NAFA Real Estate | Insights & News</title>
+    <title>NAFA Blogs | Luxury Real Estate Updates</title>
     <style>
         :root { --gold: #c5a059; --dark: #1a1a1a; --gray: #f8f9fa; }
         body { font-family: 'Georgia', serif; margin: 0; background-color: var(--gray); color: var(--dark); }
         
-        /* Header */
-        .header { text-align: center; padding: 60px 20px; background: var(--dark); color: white; }
-        .header h1 { font-size: 2.5rem; letter-spacing: 2px; margin-bottom: 10px; }
-        .header p { color: var(--gold); font-family: sans-serif; text-transform: uppercase; font-size: 0.9rem; }
+        .header { text-align: center; padding: 80px 20px; background: var(--dark); color: white; }
+        .header h1 { font-size: 3rem; letter-spacing: 4px; margin: 0; text-transform: uppercase; }
+        .header p { color: var(--gold); font-family: sans-serif; letter-spacing: 2px; margin-bottom: 10px; font-size: 0.8rem; }
 
-        /* Blog Grid */
-        .blog-container { max-width: 1100px; margin: -40px auto 50px; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .blog-container { max-width: 1200px; margin: -50px auto 100px; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 40px; }
         
-        .blog-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); transition: transform 0.3s ease; }
+        .blog-card { background: white; border-radius: 4px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); transition: 0.4s; }
         .blog-card:hover { transform: translateY(-10px); }
         
-        .blog-img { width: 100%; height: 220px; object-fit: cover; border-bottom: 3px solid var(--gold); }
+        .blog-img { width: 100%; height: 250px; object-fit: cover; }
+        .blog-content { padding: 30px; border-top: 4px solid var(--gold); }
+        .blog-date { color: #999; font-size: 0.8rem; font-family: sans-serif; }
+        .blog-title { font-size: 1.5rem; margin: 15px 0; color: var(--dark); line-height: 1.2; }
+        .blog-text { color: #666; font-size: 1rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         
-        .blog-content { padding: 25px; }
-        .blog-date { color: #888; font-size: 0.8rem; font-family: sans-serif; margin-bottom: 10px; display: block; }
-        .blog-title { font-size: 1.4rem; margin: 10px 0; line-height: 1.3; }
-        .blog-text { color: #555; line-height: 1.6; font-size: 0.95rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        
-        .read-more { display: inline-block; margin-top: 15px; color: var(--gold); text-decoration: none; font-weight: bold; font-family: sans-serif; font-size: 0.85rem; border-bottom: 1px solid transparent; transition: 0.3s; }
-        .read-more:hover { border-bottom: 1px solid var(--gold); }
-
-        .no-posts { text-align: center; grid-column: 1 / -1; padding: 50px; color: #999; }
+        .read-more { display: inline-block; margin-top: 20px; color: var(--gold); text-decoration: none; font-weight: bold; font-family: sans-serif; font-size: 0.8rem; letter-spacing: 1px; transition: 0.3s; }
+        .read-more:hover { letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <p>Expertise in Dubai Real Estate</p>
-        <h1>NAFA INSIGHTS</h1>
+        <p>EXPERTISE IN DUBAI REAL ESTATE</p>
+        <h1>NAFA BLOGS</h1>
     </div>
 
     <div class="blog-container" id="blog-list">
@@ -48,23 +43,22 @@
             const posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
 
             if (posts.length === 0) {
-                container.innerHTML = '<div class="no-posts"><h3>No luxury updates posted yet.</h3><p>Check back soon for new listings and market news.</p></div>';
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 100px; color: #bbb;"><h2>No stories published yet.</h2></div>';
                 return;
             }
 
-            container.innerHTML = posts.map(post => `
+            container.innerHTML = posts.map((post, index) => `
                 <div class="blog-card">
-                    <img src="${post.image || 'https://via.placeholder.com/400x250?text=NAFA+Real+Estate'}" class="blog-img" alt="Property">
+                    <img src="${post.image}" class="blog-img">
                     <div class="blog-content">
                         <span class="blog-date">${post.date}</span>
                         <h2 class="blog-title">${post.title}</h2>
                         <p class="blog-text">${post.content}</p>
-                        <a href="#" class="read-more">CONTINUE READING →</a>
+                        <a href="post.html?id=${index}" class="read-more">CONTINUE READING →</a>
                     </div>
                 </div>
             `).join('');
         }
-
         window.onload = loadPosts;
     </script>
 </body>
