@@ -8,17 +8,16 @@
         :root { --gold: #c5a059; --dark: #1a1a1a; --white: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f4f4; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        /* Login Box */
         #login-container { background: var(--white); padding: 40px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 350px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: var(--dark); color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-family: inherit; }
+        
+        button { width: 100%; padding: 12px; background: var(--dark); color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; font-weight: bold; }
         button:hover { background: var(--gold); }
 
-        /* Admin Dashboard (Hidden by default) */
         #admin-dash { display: none; width: 90%; max-width: 800px; background: white; padding: 30px; border-radius: 10px; margin: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .hidden { display: none !important; }
-        textarea { width: 100%; height: 200px; padding: 15px; margin-top: 10px; border: 1px solid #ddd; border-radius: 5px; resize: vertical; }
-        .preview-img { max-width: 200px; margin-top: 10px; border-radius: 5px; display: block; }
+        textarea { height: 200px; resize: vertical; }
+        .preview-img { max-width: 100%; max-height: 200px; margin: 10px 0; border-radius: 5px; display: none; border: 2px solid var(--gold); }
     </style>
 </head>
 <body>
@@ -33,32 +32,30 @@
 
     <div id="admin-dash">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 20px;">
-            <h3>Create New Post</h3>
+            <h3 style="margin:0;">Create New Post</h3>
             <button onclick="logout()" style="width: 80px; padding: 5px; background: #ff4444;">Logout</button>
         </div>
 
-        <label>Blog Title</label>
-        <input type="text" id="post-title" placeholder="e.g. New 600K Spa Listing in Dubai">
+        <label><b>Blog Title</b></label>
+        <input type="text" id="post-title" placeholder="e.g. New Luxury Listing in Downtown">
 
-        <label>Upload Cover Image</label>
+        <label><b>Upload Cover Image</b></label>
         <input type="file" id="post-image" accept="image/*" onchange="previewFile()">
-        <img src="" id="img-preview" class="preview-img hidden">
+        <img src="" id="img-preview" class="preview-img">
 
-        <label>Blog Content</label>
-        <textarea id="post-content" placeholder="Write your luxury real estate update here..."></textarea>
+        <label><b>Blog Content</b></label>
+        <textarea id="post-content" placeholder="Describe the property or news..."></textarea>
 
-        <button onclick="publishPost()" style="margin-top: 20px; background: var(--gold); font-weight: bold;">PUBLISH TO WEBSITE</button>
+        <button onclick="publishPost()" style="margin-top: 20px; background: var(--gold); font-size: 1.1rem;">PUBLISH TO WEBSITE</button>
     </div>
 
     <script>
-        // Simple Auth (Update these for your use!)
         const ADMIN_ID = "nafa_admin";
         const ADMIN_PASS = "Dubai2026";
 
         function checkLogin() {
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
-            
             if(user === ADMIN_ID && pass === ADMIN_PASS) {
                 document.getElementById('login-container').classList.add('hidden');
                 document.getElementById('admin-dash').style.display = 'block';
@@ -74,7 +71,7 @@
 
             reader.onloadend = function () {
                 preview.src = reader.result;
-                preview.classList.remove('hidden');
+                preview.style.display = "block"; // Show image once loaded
             }
 
             if (file) { reader.readAsDataURL(file); }
@@ -85,17 +82,29 @@
             const content = document.getElementById('post-content').value;
             const image = document.getElementById('img-preview').src;
 
-            if(!title || !content) { alert("Please fill in the title and content!"); return; }
+            if(!title || !content) { 
+                alert("Please fill in both the title and the content!"); 
+                return; 
+            }
 
-            const blogPost = { title, content, image, date: new Date().toLocaleDateString() };
+            const blogPost = { 
+                title: title, 
+                content: content, 
+                image: image, 
+                date: new Date().toLocaleDateString('en-GB') 
+            };
 
-            // Save to LocalStorage (This mimics a database for now)
-            let posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
-            posts.unshift(blogPost);
-            localStorage.setItem('nafa_blogs', JSON.stringify(posts));
+            try {
+                let posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
+                posts.unshift(blogPost); // Put newest at the top
+                localStorage.setItem('nafa_blogs', JSON.stringify(posts));
 
-            alert("Blog Posted Successfully!");
-            window.location.href = "blogs.html"; // Redirect to see the result
+                alert("✅ Success! Blog Published.");
+                window.location.href = "blogs.html"; 
+            } catch (e) {
+                alert("Error: Your image might be too large for the browser memory. Try a smaller photo.");
+                console.error(e);
+            }
         }
 
         function logout() { location.reload(); }
