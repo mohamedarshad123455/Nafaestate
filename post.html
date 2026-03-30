@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAFA Blog Details</title>
+    <style>
+        :root { --gold: #c5a059; --dark: #1a1a1a; }
+        body { font-family: 'Georgia', serif; margin: 0; background: #fff; line-height: 1.8; color: #222; }
+        
+        .nav-bar { padding: 20px; background: var(--dark); position: sticky; top: 0; z-index: 100; }
+        .nav-bar a { color: var(--gold); text-decoration: none; font-family: sans-serif; font-size: 0.8rem; letter-spacing: 1px; }
+
+        .article-container { max-width: 900px; margin: 0 auto; padding: 80px 20px; }
+        .meta-data { font-family: sans-serif; text-transform: uppercase; color: var(--gold); letter-spacing: 2px; font-size: 0.8rem; }
+        .title { font-size: 3.5rem; line-height: 1.1; margin: 20px 0 40px; color: var(--dark); }
+        .main-img { width: 100%; border-radius: 8px; margin-bottom: 50px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .content-body { font-size: 1.25rem; color: #444; white-space: pre-wrap; }
+        
+        .cta-box { margin-top: 80px; padding: 40px; background: var(--dark); color: white; border-radius: 8px; text-align: center; }
+        .cta-btn { display: inline-block; padding: 15px 30px; background: var(--gold); color: white; text-decoration: none; margin-top: 20px; border-radius: 4px; font-family: sans-serif; }
+    </style>
+</head>
+<body>
+
+    <div class="nav-bar">
+        <a href="blogs.html">← BACK TO ALL STORIES</a>
+    </div>
+
+    <div class="article-container" id="full-post">
+        </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        const posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
+        const post = posts[id];
+
+        if (post) {
+            document.getElementById('full-post').innerHTML = `
+                <span class="meta-data">Published on ${post.date}</span>
+                <h1 class="title">${post.title}</h1>
+                <img src="${post.image}" class="main-img">
+                <div class="content-body">${post.content}</div>
+                <div class="cta-box">
+                    <h3>Interested in this property or market insight?</h3>
+                    <p>Speak with a NAFA expert today.</p>
+                    <a href="mailto:info@nafaestate.com" class="cta-btn">CONTACT US</a>
+                </div>
+            `;
+            document.title = post.title + " | NAFA Real Estate";
+        } else {
+            document.getElementById('full-post').innerHTML = "<h1>Post not found.</h1>";
+        }
+    </script>
+</body>
+</html>
