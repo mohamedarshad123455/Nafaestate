@@ -1,0 +1,14 @@
+// Add this to your main website blog page to show the posts
+const posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
+const container = document.getElementById('blog-display-area');
+
+posts.map(post => {
+    container.innerHTML += `
+        <div class="blog-card">
+            <img src="${post.image}" style="width:100%">
+            <h2>${post.title}</h2>
+            <p>${post.date}</p>
+            <p>${post.content.substring(0, 100)}...</p>
+        </div>
+    `;
+});
