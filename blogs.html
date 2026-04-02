@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAFA Blog Details</title>
+    <style>
+        :root { --gold: #c5a059; --dark: #1a1a1a; }
+        body { font-family: 'Georgia', serif; margin: 0; background: #fff; line-height: 1.8; }
+        .nav-header { background: var(--dark); padding: 20px; text-align: center; }
+        .back-link { color: var(--gold); text-decoration: none; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
+        .container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
+        .meta-data { color: var(--gold); text-transform: uppercase; font-size: 0.9rem; display: block; margin-bottom: 10px; }
+        h1 { font-size: 3rem; margin: 0 0 30px; line-height: 1.1; color: var(--dark); }
+        .content-body img { width: 100%; border-radius: 8px; margin: 30px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .mosaic-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 50px; }
+        .mosaic-item img { width: 100%; height: 250px; object-fit: cover; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="nav-header"><a href="index.html" class="back-link">← Back to all stories</a></div>
+    <div class="container" id="full-post"></div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        const posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
+        const post = posts[id];
+
+        if (post) {
+            const allImages = post.images || (post.image ? [post.image] : []);
+            const restImages = allImages.slice(1);
+            let bodyContent = post.content;
+
+            // Insert images into text if tags [img1], [img2] etc. exist
+            allImages.forEach((src, i) => {
+                const tag = `[img${i+1}]`;
+                const imgHtml = `<img src="${src}" alt="Image ${i+1}">`;
+                if (bodyContent.includes(tag)) {
+                    bodyContent = bodyContent.replace(tag, imgHtml);
+                } else if (i === 0 && !bodyContent.includes('<img')) {
+                    bodyContent = imgHtml + bodyContent;
+                }
+            });
+
+            let mosaicHTML = '';
+            if (restImages.length > 0) {
+                mosaicHTML = `
+                    <h3 style="margin-top:60px; border-bottom:1px solid #eee; padding-bottom:10px; color:var(--gold);">PROPERTY GALLERY</h3>
+                    <div class="mosaic-gallery">
+                        ${restImages.map(src => `<div class="mosaic-item"><img src="${src}"></div>`).join('')}
+                    </div>`;
+            }
+
+            document.getElementById('full-post').innerHTML = `
+                <span class="meta-data">Published on ${post.date}</span>
+                <h1>${post.title}</h1>
+                <div class="content-body">${bodyContent}</div>
+                ${mosaicHTML}
+            `;
+        } else {
+            document.getElementById('full-post').innerHTML = "<h1>Post not found.</h1>";
+        }
+    </script>
+</body>
+</html>
