@@ -38,28 +38,31 @@
     </div>
 
     <div id="admin-dash">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 20px;">
-            <h3 style="margin:0;">Create Luxury Multi-Photo Post</h3>
-            <button onclick="logout()" style="width: 80px; padding: 5px; background: #ff4444;">Logout</button>
-        </div>
-
-        <label><b>Blog Title</b></label>
-        <input type="text" id="post-title" placeholder="e.g. Penthouse Collection in Palm Jumeirah">
-
-        <label><b>Property Gallery</b></label>
-        <div class="upload-area" onclick="document.getElementById('post-images').click()">
-            Click to Upload Multiple Images
-            <p style="font-size: 11px; font-weight: normal; color: #666;">(The first image will be your main cover photo)</p>
-        </div>
-        <input type="file" id="post-images" accept="image/*" multiple style="display: none;" onchange="handleFiles(this.files)">
-        
-        <div id="preview-gallery"></div>
-
-        <label style="display:block; margin-top:20px;"><b>Blog Content</b></label>
-        <textarea id="post-content" placeholder="Describe the luxury details..."></textarea>
-
-        <button onclick="publishPost()" style="margin-top: 20px; background: var(--gold); font-size: 1.1rem;">PUBLISH PORTFOLIO</button>
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 20px;">
+        <h3 style="margin:0;">Create Luxury Blog Post</h3>
+        <button onclick="logout()" style="width: 80px; padding: 5px; background: #ff4444;">Logout</button>
     </div>
+
+    <label><b>Blog Title</b></label>
+    <input type="text" id="post-title" placeholder="e.g. Penthouse Collection in Palm Jumeirah">
+
+    <label><b>Upload Property Photos</b></label>
+    <div class="upload-area" onclick="document.getElementById('post-images').click()">
+        Click to Upload Multiple Images
+        <p style="font-size: 11px; font-weight: normal; color: #666;">(Images are numbered [img1], [img2], etc.)</p>
+    </div>
+    <input type="file" id="post-images" accept="image/*" multiple style="display: none;" onchange="handleFiles(this.files)">
+    
+    <div id="preview-gallery"></div>
+
+    <label style="display:block; margin-top:20px;"><b>Blog Content (Mix Text & Images)</b></label>
+    <p style="font-size: 12px; color: #777; margin-bottom: 5px;">
+        Type <b>[img1]</b>, <b>[img2]</b>, etc., where you want your photos to appear in the text.
+    </p>
+    <textarea id="post-content" style="height: 300px;" placeholder="Luxury living starts here... [img1] The view from the balcony is unmatched. [img2]"></textarea>
+
+    <button onclick="publishPost()" style="margin-top: 20px; background: var(--gold); font-size: 1.1rem;">PUBLISH BLOG POST</button>
+</div>
 
     <script>
         const ADMIN_ID = "nafa_admin";
@@ -99,40 +102,49 @@
         }
 
         function renderGallery() {
-            const container = document.getElementById('preview-gallery');
-            container.innerHTML = imageArray.map((src, i) => `
-                <div class="gallery-item ${i === 0 ? 'main' : ''}">
-                    ${i === 0 ? '<span class="badge">Main</span>' : ''}
-                    <img src="${src}">
-                    <button class="del-btn" onclick="removeImg(${i})">×</button>
-                </div>
-            `).join('');
-        }
-
+    const container = document.getElementById('preview-gallery');
+    container.innerHTML = imageArray.map((src, i) => `
+        <div class="gallery-item">
+            <span class="badge">[img${i + 1}]</span>
+            <img src="${src}">
+            <button class="del-btn" onclick="removeImg(${index})">×</button>
+        </div>
+    `).join('');
+}
         function removeImg(index) {
             imageArray.splice(index, 1);
             renderGallery();
         }
 
         function publishPost() {
-            const title = document.getElementById('post-title').value;
-            const content = document.getElementById('post-content').value;
+    const title = document.getElementById('post-title').value;
+    const content = document.getElementById('post-content').value;
 
-            if(!title || imageArray.length === 0) { alert("Add a title and at least one image!"); return; }
+    if(!title || imageArray.length === 0) { 
+        alert("Add a title and at least one image!"); 
+        return; 
+    }
 
-            const blogPost = { title, content, images: imageArray, date: new Date().toLocaleDateString('en-GB') };
+    const blogPost = { 
+        title, 
+        content, 
+        images: imageArray, 
+        date: new Date().toLocaleDateString('en-GB') 
+    };
 
-            try {
-                let posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
-                posts.unshift(blogPost);
-                localStorage.setItem('nafa_blogs', JSON.stringify(posts));
-                alert("Published!");
-                window.location.href = "index.html";
-            } catch (e) {
-                alert("Storage full! Try fewer images or smaller files.");
-            }
-        }
-
+    try {
+        let posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
+        posts.unshift(blogPost);
+        localStorage.setItem('nafa_blogs', JSON.stringify(posts));
+        alert("Published successfully!");
+        
+        // Reset the form
+        imageArray = []; 
+        window.location.href = "blogs.html"; // Ensure this matches your filename
+    } catch (e) {
+        alert("Storage full! Use fewer images or smaller files.");
+    }
+}
         function logout() { location.reload(); }
     </script>
 </body>
