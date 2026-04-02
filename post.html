@@ -3,22 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NAFA Blog Details</title>
+    <title>NAFA Detail</title>
     <style>
         :root { --gold: #c5a059; --dark: #1a1a1a; }
-        body { font-family: 'Georgia', serif; margin: 0; background: #fff; line-height: 1.8; color: #222; }
-        .nav-bar { padding: 20px; background: var(--dark); }
-        .nav-bar a { color: var(--gold); text-decoration: none; font-family: sans-serif; }
-        .article-container { max-width: 800px; margin: 40px auto; padding: 0 20px; }
-        .title { font-size: 3rem; line-height: 1.2; margin: 20px 0; }
-        .content-body img { width: 100%; border-radius: 8px; margin: 20px 0; }
-        .mosaic-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 30px; }
-        .mosaic-item img { width: 100%; height: 250px; object-fit: cover; border-radius: 4px; }
+        body { font-family: 'Georgia', serif; margin: 0; background: #fff; line-height: 1.8; color: #333; }
+        
+        .nav { background: var(--dark); padding: 25px; position: sticky; top: 0; z-index: 100; text-align: center; }
+        .nav a { color: var(--gold); text-decoration: none; font-family: sans-serif; font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase; }
+        .nav a:hover { color: white; }
+
+        .container { max-width: 900px; margin: 60px auto; padding: 0 25px; }
+        .date { color: var(--gold); font-family: sans-serif; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 10px; }
+        h1 { font-size: clamp(2.5rem, 5vw, 3.8rem); line-height: 1.1; color: var(--dark); margin: 0 0 40px; }
+        
+        .main-text { font-size: 1.25rem; white-space: pre-wrap; color: #444; }
+        .inline-img { width: 100%; border-radius: 8px; margin: 40px 0; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+
+        /* GALLERY HOVER EFFECTS */
+        .gallery-title { color: var(--gold); border-bottom: 1px solid #eee; padding-bottom: 15px; margin-top: 80px; letter-spacing: 2px; }
+        .mosaic { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
+        .mosaic-item { overflow: hidden; border-radius: 8px; background: var(--dark); }
+        .mosaic img { width: 100%; height: 350px; object-fit: cover; display: block; transition: 0.5s; opacity: 1; }
+        .mosaic-item:hover img { transform: scale(1.1); opacity: 0.7; }
+
+        .cta-box { margin-top: 100px; padding: 60px 40px; background: var(--dark); color: white; border-radius: 12px; text-align: center; }
+        .cta-btn { display: inline-block; padding: 18px 40px; background: var(--gold); color: white; text-decoration: none; margin-top: 25px; border-radius: 4px; font-family: sans-serif; font-weight: bold; transition: 0.3s; }
+        .cta-btn:hover { background: #b08d4a; transform: translateY(-3px); }
+
+        @media (max-width: 768px) { .mosaic { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <div class="nav-bar"><a href="index.html">← BACK TO ALL STORIES</a></div>
-    <div class="article-container" id="full-post"></div>
+    <div class="nav"><a href="index.html">← Back to Insights</a></div>
+    <div class="container" id="post-content"></div>
 
     <script>
         const params = new URLSearchParams(window.location.search);
@@ -27,28 +44,39 @@
         const post = posts[id];
 
         if (post) {
-            const allImages = post.images || (post.image ? [post.image] : []);
-            const mainImg = allImages[0];
-            const restImages = allImages.slice(1);
+            let finalBody = post.content;
+            const images = post.images || [];
+            let unusedImages = [];
 
-            let mosaicHTML = '';
-            if (restImages.length > 0) {
-                mosaicHTML = `
-                    <h3 style="color:var(--gold); border-bottom:1px solid #eee; padding-bottom:10px;">PROPERTY GALLERY</h3>
-                    <div class="mosaic-gallery">
-                        ${restImages.map(src => `<div class="mosaic-item"><img src="${src}"></div>`).join('')}
-                    </div>`;
-            }
+            images.forEach((src, i) => {
+                const tag = `[img${i+1}]`;
+                const imgHtml = `<img src="${src}" class="inline-img">`;
+                if (finalBody.includes(tag)) {
+                    finalBody = finalBody.replace(tag, imgHtml);
+                } else if (i === 0 && !finalBody.includes('<img')) {
+                    finalBody = imgHtml + finalBody;
+                } else {
+                    unusedImages.push(src);
+                }
+            });
 
-            document.getElementById('full-post').innerHTML = `
-                <small>Published on ${post.date}</small>
-                <h1 class="title">${post.title}</h1>
-                <div class="content-body">
-                    <img src="${mainImg}">
-                    <p style="white-space: pre-wrap;">${post.content}</p>
+            let galleryHtml = unusedImages.length > 0 ? `
+                <h3 class="gallery-title">PROPERTY GALLERY</h3>
+                <div class="mosaic">${unusedImages.map(src => `<div class="mosaic-item"><img src="${src}"></div>`).join('')}</div>
+            ` : '';
+
+            document.getElementById('post-content').innerHTML = `
+                <span class="date">Published ${post.date}</span>
+                <h1>${post.title}</h1>
+                <div class="main-text">${finalBody}</div>
+                ${galleryHtml}
+                <div class="cta-box">
+                    <h2>Refining Luxury Living</h2>
+                    <p>Interested in learning more about this property or similar opportunities?</p>
+                    <a href="mailto:info@nafaestate.com" class="cta-btn">INQUIRE NOW</a>
                 </div>
-                ${mosaicHTML}
             `;
+            document.title = post.title + " | NAFA Real Estate";
         }
     </script>
 </body>
