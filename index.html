@@ -8,7 +8,7 @@
         :root { --gold: #c5a059; --dark: #1a1a1a; --gray: #f8f9fa; }
         body { font-family: 'Georgia', serif; margin: 0; background-color: var(--gray); color: var(--dark); overflow-x: hidden; }
         
-        /* Fixed Admin Button in Top Right */
+        /* Fixed Admin Button */
         .admin-link {
             position: absolute;
             top: 20px;
@@ -26,58 +26,55 @@
             transition: 0.3s;
             z-index: 100;
         }
-        .admin-link:hover {
-            background: var(--gold);
-            color: white;
-        }
+        .admin-link:hover { background: var(--gold); color: white; }
 
+        /* Header with enough space */
         .header { text-align: center; padding: 120px 20px 100px; background: var(--dark); color: white; position: relative; }
-        .header h1 { font-size: clamp(2rem, 8vw, 3rem); letter-spacing: 4px; margin: 0; text-transform: uppercase; }
+        .header h1 { font-size: clamp(2.5rem, 8vw, 3.5rem); letter-spacing: 4px; margin: 0; text-transform: uppercase; }
         .header p { color: var(--gold); font-family: sans-serif; letter-spacing: 2px; margin-bottom: 10px; font-size: 0.8rem; }
 
-        /* Fixed Grid and Spacing */
+        /* FIXED SPACING: margin-top adjusted to give space like the rows below */
         .blog-container { 
             max-width: 1200px; 
-            margin: -40px auto 100px; 
-            padding: 0 20px; 
+            margin: 60px auto 100px; /* Changed from negative margin to positive 60px */
+            padding: 0 25px; 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-            gap: 30px; 
+            gap: 40px; /* Consistent gap for all rows */
         }
         
         .blog-card { 
             background: white; 
             border-radius: 8px; 
             overflow: hidden; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
-            transition: 0.4s; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
             display: flex;
             flex-direction: column;
+            transition: 0.4s ease;
         }
-        .blog-card:hover { transform: translateY(-10px); }
+        .blog-card:hover { transform: translateY(-10px); box-shadow: 0 20px 45px rgba(0,0,0,0.15); }
         
-        /* IMAGE FIX: Wrapper ensures the image doesn't get cut off */
+        /* Image Sizing Fix */
         .blog-img-wrapper {
             width: 100%;
-            height: 250px;
+            height: 240px; 
             overflow: hidden;
-            background-color: #eee;
+            background: #eee;
         }
-        
         .blog-img { 
             width: 100%; 
             height: 100%; 
-            object-fit: cover; /* Keeps image proportions perfect */
+            object-fit: cover; 
             display: block;
         }
 
-        .blog-content { padding: 30px; border-top: 4px solid var(--gold); flex-grow: 1; }
-        .blog-date { color: #999; font-size: 0.8rem; font-family: sans-serif; }
-        .blog-title { font-size: 1.5rem; margin: 15px 0; color: var(--dark); line-height: 1.2; font-weight: bold; }
-        .blog-text { color: #666; font-size: 1rem; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 20px; }
+        .blog-content { padding: 30px; flex-grow: 1; border-top: 4px solid var(--gold); }
+        .blog-date { color: #999; font-size: 0.8rem; font-family: sans-serif; display: block; margin-bottom: 10px;}
+        .blog-title { font-size: 1.5rem; margin: 0 0 15px; color: var(--dark); line-height: 1.2; font-weight: bold; }
+        .blog-text { color: #666; font-size: 1rem; line-height: 1.6; margin-bottom: 20px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         
-        .read-more { display: inline-block; color: var(--gold); text-decoration: none; font-weight: bold; font-family: sans-serif; font-size: 0.8rem; letter-spacing: 1px; transition: 0.3s; text-transform: uppercase; }
-        .read-more:hover { letter-spacing: 2px; color: var(--dark); }
+        .read-more { font-family: sans-serif; font-size: 0.8rem; color: var(--gold); text-decoration: none; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; transition: 0.3s; }
+        .read-more:hover { color: var(--dark); letter-spacing: 2px; }
     </style>
 </head>
 <body>
@@ -101,7 +98,6 @@
                 return;
             }
 
-            // Updated map to include the image wrapper
             container.innerHTML = posts.map((post, index) => `
                 <div class="blog-card">
                     <div class="blog-img-wrapper">
