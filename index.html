@@ -3,53 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NAFA Blogs | Luxury Real Estate</title>
+    <title>NAFA Blogs | Dubai Real Estate</title>
     <style>
-        :root { --gold: #c5a059; --dark: #1a1a1a; --gray: #f8f9fa; }
-        body { font-family: 'Georgia', serif; margin: 0; background-color: var(--gray); color: var(--dark); }
-        .header { text-align: center; padding: 80px 20px; background: var(--dark); color: white; }
-        .header h1 { font-size: 3rem; letter-spacing: 4px; margin: 0; text-transform: uppercase; }
-        .blog-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
-        .blog-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: 0.3s; text-decoration: none; color: inherit; }
-        .blog-card:hover { transform: translateY(-5px); }
-        .blog-img { width: 100%; height: 200px; object-fit: cover; }
-        .blog-content { padding: 20px; flex-grow: 1; border-top: 4px solid var(--gold); }
-        .blog-title { font-size: 1.4rem; margin: 10px 0; }
-        .read-more { color: var(--gold); font-weight: bold; font-family: sans-serif; font-size: 0.8rem; }
+        :root { --gold: #c5a059; --dark: #1a1a1a; --bg: #f8f9fa; }
+        body { font-family: 'Georgia', serif; margin: 0; background: var(--bg); color: var(--dark); overflow-x: hidden; }
+        
+        /* Header Styling */
+        .header { background: var(--dark); color: white; text-align: center; padding: 120px 20px; position: relative; }
+        .header h1 { font-size: clamp(2rem, 8vw, 3.5rem); letter-spacing: 5px; margin: 0; text-transform: uppercase; }
+        .header p { color: var(--gold); font-family: sans-serif; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 10px; }
+
+        /* Grid & Card Styling */
+        .blog-grid { max-width: 1200px; margin: -60px auto 100px; padding: 0 25px; display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 40px; }
+        
+        .card { 
+            background: white; border-radius: 8px; overflow: hidden; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08); 
+            display: flex; flex-direction: column; 
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); 
+            text-decoration: none; color: inherit; 
+        }
+
+        /* THE HOVER EFFECT IS BACK */
+        .card:hover { 
+            transform: translateY(-12px); 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.15); 
+        }
+        
+        .card-img-wrapper { width: 100%; height: 260px; overflow: hidden; }
+        .card-img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .card:hover .card-img { transform: scale(1.05); }
+
+        .card-body { padding: 35px; border-top: 5px solid var(--gold); flex-grow: 1; display: flex; flex-direction: column; }
+        .card-date { color: #999; font-family: sans-serif; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; }
+        .card-title { font-size: 1.6rem; margin: 15px 0; line-height: 1.3; color: var(--dark); }
+        
+        .read-more { 
+            color: var(--gold); font-weight: bold; font-family: sans-serif; 
+            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;
+            margin-top: auto; transition: 0.3s;
+        }
+        .card:hover .read-more { letter-spacing: 3px; color: var(--dark); }
     </style>
 </head>
 <body>
     <div class="header">
+        <p>EXPERTISE IN DUBAI REAL ESTATE</p>
         <h1>NAFA BLOGS</h1>
     </div>
-    <div class="blog-container" id="blog-list"></div>
+    <div class="blog-grid" id="blog-list"></div>
 
     <script>
-        function loadPosts() {
-            const container = document.getElementById('blog-list');
-            const posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
+        const posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
+        const container = document.getElementById('blog-list');
 
-            if (posts.length === 0) {
-                container.innerHTML = '<h2>No stories published yet.</h2>';
-                return;
-            }
-
+        if(posts.length === 0) {
+            container.innerHTML = "<div style='grid-column: 1/-1; text-align: center; padding: 100px; color: #bbb;'><h2>No stories published yet.</h2></div>";
+        } else {
             container.innerHTML = posts.map((post, index) => {
-                // Supports both the old single image and new multiple images array
-                const coverImg = (post.images && post.images.length > 0) ? post.images[0] : (post.image || '');
-                
+                const cover = (post.images && post.images.length > 0) ? post.images[0] : '';
+                // Clean text for preview
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = post.content;
+                const cleanText = tempDiv.textContent || tempDiv.innerText || "";
+                const previewText = cleanText.replace(/\[img\d+\]/g, '').substring(0, 100) + "...";
+
                 return `
-                    <a href="post.html?id=${index}" class="blog-card">
-                        <img src="${coverImg}" class="blog-img">
-                        <div class="blog-content">
-                            <small>${post.date}</small>
-                            <h2 class="blog-title">${post.title}</h2>
+                    <a href="post.html?id=${index}" class="card">
+                        <div class="card-img-wrapper"><img src="${cover}" class="card-img"></div>
+                        <div class="card-body">
+                            <span class="card-date">${post.date}</span>
+                            <h2 class="card-title">${post.title}</h2>
+                            <p style="color:#666; font-size: 0.95rem; margin-bottom: 20px;">${previewText}</p>
                             <span class="read-more">CONTINUE READING →</span>
                         </div>
-                    </a>`;
+                    </a>
+                `;
             }).join('');
         }
-        window.onload = loadPosts;
     </script>
 </body>
 </html>
