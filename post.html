@@ -39,25 +39,45 @@
     <div class="article-container" id="full-post"></div>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const id = params.get('id');
-        const posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
-        const post = posts[id];
+const params = new URLSearchParams(window.location.search);
+const id = params.get('id');
+const posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
+const post = posts[id];
 
-        if (post) {
-            // Handle both old posts (single .image) and new posts (.images array)
-            const allImages = post.images || [post.image];
-            const mainImg = allImages[0];
-            const restImages = allImages.slice(1);
+if (post) {
+    let finalContent = post.content;
+    // Handle both old single images and new multiple images
+    const imagesArray = post.images || (post.image ? [post.image] : []);
 
-            let mosaicHTML = '';
-            if(restImages.length > 0) {
-                mosaicHTML = `
-                    <h3 style="font-family:sans-serif; color:var(--gold); border-bottom:1px solid #eee; padding-bottom:10px;">PROPERTY GALLERY</h3>
-                    <div class="mosaic-gallery">
-                        ${restImages.map(src => `<div class="mosaic-item"><img src="${src}"></div>`).join('')}
-                    </div>`;
-            }
+    // This loop finds [img1], [img2] etc in your text and puts the photo there
+    imagesArray.forEach((imgSrc, index) => {
+        const placeholder = `[img${index + 1}]`;
+        const imgHtml = `
+            <div style="margin: 30px 0; text-align: center;">
+                <img src="${imgSrc}" style="width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            </div>`;
+        
+        if (finalContent.includes(placeholder)) {
+            finalContent = finalContent.replace(placeholder, imgHtml);
+        } else if (index === 0 && !post.content.includes('[img1]')) {
+            // If no placeholder is used, put the first image at the top
+            finalContent = imgHtml + finalContent;
+        } else {
+            // Put extra images at the bottom
+            finalContent += imgHtml;
+        }
+    });
+
+    document.getElementById('full-post').innerHTML = `
+        <span class="meta-data">Published on ${post.date}</span>
+        <h1 class="title">${post.title}</h1>
+        <div class="content-body">${finalContent}</div>
+        <div class="cta-box">
+            <h3>Interested in this property?</h3>
+            <a href="mailto:info@nafaestate.com" class="cta-btn">CONTACT US</a>
+        </div>
+    `;
+}
 
             document.getElementById('full-post').innerHTML = `
                 <span class="meta-data">Published on ${post.date}</span>
