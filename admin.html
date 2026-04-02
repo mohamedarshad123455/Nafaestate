@@ -3,21 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NAFA Admin | Blog Manager</title>
+    <title>NAFA Admin | Multi-Photo Manager</title>
     <style>
         :root { --gold: #c5a059; --dark: #1a1a1a; --white: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; background: #f4f4f4; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
         #login-container { background: var(--white); padding: 40px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 350px; }
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-family: inherit; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
         
         button { width: 100%; padding: 12px; background: var(--dark); color: white; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; font-weight: bold; }
         button:hover { background: var(--gold); }
 
         #admin-dash { display: none; width: 90%; max-width: 800px; background: white; padding: 30px; border-radius: 10px; margin: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .hidden { display: none !important; }
-        textarea { height: 200px; resize: vertical; }
-        .preview-img { max-width: 100%; max-height: 200px; margin: 10px 0; border-radius: 5px; display: none; border: 2px solid var(--gold); }
+
+        /* Multi-Image Styles */
+        .upload-area { border: 2px dashed var(--gold); background: #fff9f0; padding: 30px; text-align: center; cursor: pointer; border-radius: 5px; color: var(--gold); margin: 10px 0; font-weight: bold; }
+        #preview-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 15px; }
+        .gallery-item { position: relative; height: 100px; border-radius: 5px; overflow: hidden; border: 2px solid #ddd; }
+        .gallery-item.main { border-color: var(--gold); transform: scale(1.05); z-index: 2; }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+        .badge { position: absolute; top: 2px; left: 2px; background: var(--gold); color: white; font-size: 9px; padding: 2px 5px; border-radius: 3px; text-transform: uppercase; }
+        .del-btn { position: absolute; top: 2px; right: 2px; background: red; color: white; border: none; border-radius: 50%; cursor: pointer; width: 18px; height: 18px; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -32,78 +39,97 @@
 
     <div id="admin-dash">
         <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 20px;">
-            <h3 style="margin:0;">Create New Post</h3>
+            <h3 style="margin:0;">Create Luxury Multi-Photo Post</h3>
             <button onclick="logout()" style="width: 80px; padding: 5px; background: #ff4444;">Logout</button>
         </div>
 
         <label><b>Blog Title</b></label>
-        <input type="text" id="post-title" placeholder="e.g. New Luxury Listing in Downtown">
+        <input type="text" id="post-title" placeholder="e.g. Penthouse Collection in Palm Jumeirah">
 
-        <label><b>Upload Cover Image</b></label>
-        <input type="file" id="post-image" accept="image/*" onchange="previewFile()">
-        <img src="" id="img-preview" class="preview-img">
+        <label><b>Property Gallery</b></label>
+        <div class="upload-area" onclick="document.getElementById('post-images').click()">
+            Click to Upload Multiple Images
+            <p style="font-size: 11px; font-weight: normal; color: #666;">(The first image will be your main cover photo)</p>
+        </div>
+        <input type="file" id="post-images" accept="image/*" multiple style="display: none;" onchange="handleFiles(this.files)">
+        
+        <div id="preview-gallery"></div>
 
-        <label><b>Blog Content</b></label>
-        <textarea id="post-content" placeholder="Describe the property or news..."></textarea>
+        <label style="display:block; margin-top:20px;"><b>Blog Content</b></label>
+        <textarea id="post-content" placeholder="Describe the luxury details..."></textarea>
 
-        <button onclick="publishPost()" style="margin-top: 20px; background: var(--gold); font-size: 1.1rem;">PUBLISH TO WEBSITE</button>
+        <button onclick="publishPost()" style="margin-top: 20px; background: var(--gold); font-size: 1.1rem;">PUBLISH PORTFOLIO</button>
     </div>
 
     <script>
         const ADMIN_ID = "nafa_admin";
         const ADMIN_PASS = "Dubai2026";
+        let imageArray = [];
 
         function checkLogin() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
-            if(user === ADMIN_ID && pass === ADMIN_PASS) {
+            if(document.getElementById('username').value === ADMIN_ID && document.getElementById('password').value === ADMIN_PASS) {
                 document.getElementById('login-container').classList.add('hidden');
                 document.getElementById('admin-dash').style.display = 'block';
             } else {
-                document.getElementById('error-msg').innerText = "Invalid Credentials. Try again.";
+                document.getElementById('error-msg').innerText = "Invalid Credentials.";
             }
         }
 
-        function previewFile() {
-            const preview = document.getElementById('img-preview');
-            const file = document.querySelector('input[type=file]').files[0];
-            const reader = new FileReader();
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    // Auto-compressing to save space
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const maxW = 1000;
+                        const scale = maxW / img.width;
+                        canvas.width = maxW;
+                        canvas.height = img.height * scale;
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        imageArray.push(canvas.toDataURL('image/jpeg', 0.7));
+                        renderGallery();
+                    };
+                };
+            });
+        }
 
-            reader.onloadend = function () {
-                preview.src = reader.result;
-                preview.style.display = "block"; // Show image once loaded
-            }
+        function renderGallery() {
+            const container = document.getElementById('preview-gallery');
+            container.innerHTML = imageArray.map((src, i) => `
+                <div class="gallery-item ${i === 0 ? 'main' : ''}">
+                    ${i === 0 ? '<span class="badge">Main</span>' : ''}
+                    <img src="${src}">
+                    <button class="del-btn" onclick="removeImg(${i})">×</button>
+                </div>
+            `).join('');
+        }
 
-            if (file) { reader.readAsDataURL(file); }
+        function removeImg(index) {
+            imageArray.splice(index, 1);
+            renderGallery();
         }
 
         function publishPost() {
             const title = document.getElementById('post-title').value;
             const content = document.getElementById('post-content').value;
-            const image = document.getElementById('img-preview').src;
 
-            if(!title || !content) { 
-                alert("Please fill in both the title and the content!"); 
-                return; 
-            }
+            if(!title || imageArray.length === 0) { alert("Add a title and at least one image!"); return; }
 
-            const blogPost = { 
-                title: title, 
-                content: content, 
-                image: image, 
-                date: new Date().toLocaleDateString('en-GB') 
-            };
+            const blogPost = { title, content, images: imageArray, date: new Date().toLocaleDateString('en-GB') };
 
             try {
                 let posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
-                posts.unshift(blogPost); // Put newest at the top
+                posts.unshift(blogPost);
                 localStorage.setItem('nafa_blogs', JSON.stringify(posts));
-
-                alert("✅ Success! Blog Published.");
-                window.location.href = "index.html"; 
+                alert("Published!");
+                window.location.href = "index.html";
             } catch (e) {
-                alert("Error: Your image might be too large for the browser memory. Try a smaller photo.");
-                console.error(e);
+                alert("Storage full! Try fewer images or smaller files.");
             }
         }
 
