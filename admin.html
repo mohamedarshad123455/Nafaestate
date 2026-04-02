@@ -2,46 +2,91 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>NAFA Admin</title>
+    <title>NAFA Admin | Luxury Post Editor</title>
     <style>
-        body { font-family: sans-serif; padding: 40px; background: #f4f4f4; }
-        .form-container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; }
-        input, textarea { width: 100%; margin-bottom: 20px; padding: 10px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #1a1a1a; color: white; border: none; cursor: pointer; }
+        :root { --gold: #c5a059; --dark: #1a1a1a; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 40px; margin: 0; }
+        .editor-container { max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h2 { color: var(--dark); border-bottom: 2px solid var(--gold); padding-bottom: 10px; }
+        input, textarea { width: 100%; padding: 15px; margin: 10px 0 20px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        button { background: var(--dark); color: white; padding: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        button:hover { background: var(--gold); }
+        .gallery-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .img-card { position: relative; border: 2px solid #eee; border-radius: 8px; overflow: hidden; height: 120px; }
+        .img-card img { width: 100%; height: 100%; object-fit: cover; }
+        .img-tag { position: absolute; top: 5px; left: 5px; background: var(--gold); color: white; padding: 2px 6px; font-size: 10px; border-radius: 3px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="form-container">
-        <h2>New Post</h2>
-        <input type="text" id="title" placeholder="Title">
-        <input type="file" id="images" multiple accept="image/*">
-        <textarea id="content" rows="10" placeholder="Content"></textarea>
-        <button onclick="savePost()">Publish</button>
+    <div class="editor-container">
+        <h2>CREATE NEW PROPERTY BLOG</h2>
+        <label>Post Title</label>
+        <input type="text" id="title" placeholder="e.g., Stunning 5-Bedroom Villa in Palm Jumeirah">
+        
+        <label>Upload Images (First image is the cover)</label>
+        <input type="file" id="imageInput" multiple accept="image/*" onchange="processImages(this.files)">
+        <div id="previewGrid" class="gallery-preview"></div>
+        
+        <label>Content (Use tags like [img1] or [img2] to place images inside text)</label>
+        <textarea id="content" rows="15" placeholder="Start writing here..."></textarea>
+        
+        <button onclick="publishPost()">PUBLISH TO NAFAESTATE.COM</button>
     </div>
 
     <script>
-        async function savePost() {
-            const files = document.getElementById('images').files;
-            const images = await Promise.all(Array.from(files).map(file => {
-                return new Promise(resolve => {
-                    const reader = new FileReader();
-                    reader.onload = e => resolve(e.target.result);
-                    reader.readAsDataURL(file);
-                });
-            }));
+        let uploadedImages = [];
 
-            const post = {
-                title: document.getElementById('title').value,
-                content: document.getElementById('content').value,
-                images: images,
-                date: new Date().toLocaleDateString()
+        function processImages(files) {
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        // Resize image to 1000px width to save localStorage space
+                        const canvas = document.createElement('canvas');
+                        const scale = 1000 / img.width;
+                        canvas.width = 1000;
+                        canvas.height = img.height * scale;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        
+                        uploadedImages.push(canvas.toDataURL('image/jpeg', 0.7));
+                        renderPreview();
+                    };
+                };
+            });
+        }
+
+        function renderPreview() {
+            const grid = document.getElementById('previewGrid');
+            grid.innerHTML = uploadedImages.map((src, i) => `
+                <div class="img-card">
+                    <img src="${src}">
+                    <span class="img-tag">[img${i+1}]</span>
+                </div>
+            `).join('');
+        }
+
+        function publishPost() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            if(!title || !content || uploadedImages.length === 0) return alert("Please fill all fields!");
+
+            const newPost = {
+                title: title,
+                content: content,
+                images: uploadedImages,
+                date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
             };
 
-            const posts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
-            posts.unshift(post);
-            localStorage.setItem('nafa_blogs', JSON.stringify(posts));
-            alert("Post Published!");
-            window.location.href = 'index.html';
+            const existingPosts = JSON.parse(localStorage.getItem('nafa_blogs')) || [];
+            existingPosts.unshift(newPost);
+            localStorage.setItem('nafa_blogs', JSON.stringify(existingPosts));
+
+            alert("Post Published Successfully!");
+            window.location.href = "index.html";
         }
     </script>
 </body>
